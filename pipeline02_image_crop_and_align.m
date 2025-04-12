@@ -2,6 +2,7 @@
 %yyx20250408
 
 clc;clear;close all
+disp('=== 图像配准与裁剪处理ing ===');
 %% 设置基本信息
 %设置参考路径
 refpath='L:\m1229\20250402\image';
