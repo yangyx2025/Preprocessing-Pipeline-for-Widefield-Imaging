@@ -95,7 +95,7 @@ function FunProcessImg(para,ref_image,filepath,config,session_id)
         moving_img=imwarp(img,para.tform,'OutputView',imref2d(size(ref_image)));
         %crop
         res_img=moving_img(para.crop_range(1):para.crop_range(2),...
-            para.crop_range(3):para.crop_range(4));
+                para.crop_range(3):para.crop_range(4));
         %迭代计算最值结果
         max_proj = max(max_proj, res_img);
         min_proj = min(min_proj, res_img);
