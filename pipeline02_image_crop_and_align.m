@@ -1,4 +1,5 @@
 % 图像配准与裁剪处理工具v1.0.0(版本号，更新后更改）
+%适用16bit tif图
 %yyx20250408
 
 clc;clear;close all
