@@ -82,10 +82,10 @@ function FunProcessImg(para,ref_image,filepath,config,session_id)
     sum_proj = zeros(h, w, 'double');
     %逐张处理
     info=dir(fullfile(filepath,'*.tif'));
-    info=natsortfiles(info);
     if isempty(info)
         error('路径中未找到任何TIF图像文件');
     end
+    info=natsortfiles(info);
     % 创建进度条
     h = waitbar(0, sprintf('处理session%d图像中...',session_id));
     for i=1:length(info)
