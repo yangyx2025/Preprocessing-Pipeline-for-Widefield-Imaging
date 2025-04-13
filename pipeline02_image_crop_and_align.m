@@ -2,6 +2,7 @@
 %yyx20250408
 
 clc;clear;close all
+addpath('general function')
 disp('=== 图像配准与裁剪处理ing ===');
 %% 设置基本信息
 %设置参考路径
