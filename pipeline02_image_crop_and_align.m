@@ -90,7 +90,7 @@ function FunProcessImg(para,ref_image,filepath,config,session_id)
     h_wait = waitbar(0, 'Session%d图像配准中，处理进度: 0%',session_id);
     for i=1:length(info)
         img_file=fullfile(info(i).folder,info(i).name);
-        img=imread(img_file);i
+        img=imread(img_file);
         
         %仿射变换
         moving_img=imwarp(img,para.tform,'OutputView',imref2d(size(ref_image)));
@@ -114,7 +114,7 @@ function FunProcessImg(para,ref_image,filepath,config,session_id)
         waitbar(align_progress, h_wait, sprintf('Session%d图像配准中，处理进度: %.1f%%',...
             align_progress*100));
     end
-    close(h)
+    close(h_wait)
     image_avr=sum_proj/length(info);
     image_de_bg=double(max_proj)-config.bg_subtract_factor*image_avr;
     imwrite(max_proj, fullfile(para.savepath{3},'max_image.tif'));
