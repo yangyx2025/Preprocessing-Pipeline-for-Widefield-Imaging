@@ -89,8 +89,8 @@ function FunProcessImg(para,ref_image,filepath,config,session_id)
     % 创建进度条
     h_wait = waitbar(0, 'Session%d图像配准中，处理进度: 0%',session_id);
     for i=1:length(info)
-        img_file=fullfile(info(1).folder,info(i).name);
-        img=imread(img_file);
+        img_file=fullfile(info(i).folder,info(i).name);
+        img=imread(img_file);i
         
         %仿射变换
         moving_img=imwarp(img,para.tform,'OutputView',imref2d(size(ref_image)));
