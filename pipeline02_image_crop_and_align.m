@@ -118,7 +118,7 @@ function FunProcessImg(para,ref_image,filepath,config,session_id)
     image_avr=sum_proj/length(info);
     image_de_bg=double(max_proj)-config.bg_subtract_factor*image_avr;
     imwrite(max_proj, fullfile(para.savepath{3},'max_image.tif'));
-    imwrite(min_proj, fullfile(para.savepath{3},'avr_image.tif'));
+    imwrite(min_proj, fullfile(para.savepath{3},'min_image.tif'));
     imwrite(uint16(image_avr), fullfile(para.savepath{3},'avr_image.tif'));
     imwrite(uint16(image_de_bg), fullfile(para.savepath{3},'de_bg.tif'));
 end
