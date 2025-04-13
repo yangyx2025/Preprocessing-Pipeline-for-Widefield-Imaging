@@ -87,7 +87,7 @@ function FunProcessImg(para,ref_image,filepath,config,session_id)
     end
     info=natsortfiles(info);
     % 创建进度条
-    h = waitbar(0, sprintf('处理session%d图像中...',session_id));
+    h_wait = waitbar(0, 'Session%d图像配准中，处理进度: 0%',session_id);
     for i=1:length(info)
         img_file=fullfile(info(1).folder,info(i).name);
         img=imread(img_file);
@@ -110,7 +110,9 @@ function FunProcessImg(para,ref_image,filepath,config,session_id)
         catch
             disp([fullfile(para.savepath{1},info(i).name),'  移动失败'])
         end
-        waitbar(i/numel(info), h);
+        align_progress=i/numel(info);
+        waitbar(align_progress, h_wait, sprintf('Session%d图像配准中，处理进度: %.1f%%',...
+            align_progress*100));
     end
     close(h)
     image_avr=sum_proj/length(info);
