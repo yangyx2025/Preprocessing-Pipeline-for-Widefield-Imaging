@@ -1,6 +1,7 @@
 %读取cnmf-e结果
 % yyx20250413 v1.0.0
 %yyx20250417 v1.1.0 switch 转为字典索引增加容错，优化了数据读取函数和代码逻辑
+%yyx20250417 v1.1.1 增加动态字段索引，替换switch索引，简化代码
 clear;
 clc;
 close all;
@@ -13,28 +14,36 @@ hdf5file=fullfile(filepath,'export.hdf5');
 [hdf5_filelist,patch_id]=FunReadHdf5Txt(exportlist_txt);
 
 %% 依次读取目录内容并整合
+patch_num=numel(unique(patch_id));
+% 定义字段映射：HDF5 子名 -> neuron_patch 字段名
+fieldMap = struct( ...
+    'good_a',     'center', ...
+    'good_c',     'trace', ...
+    'good_cnn',   'p_cnn', ...
+    'good_corr',  'p_corr', ...
+    'good_patchid','neuron_id', ...
+    'good_s',     'spike', ...
+    'good_snr',   'p_snr' ...
+);
+neuron_patch = repmat(struct( ...
+    'patch_id',   [], ...
+    'center',     [], ...
+    'trace',      [], ...
+    'p_cnn',      [], ...
+    'p_corr',     [], ...
+    'neuron_id',   [], ...%neuron_id in one patch
+    'spike',      [], ...
+    'p_snr',      []  ...
+), patch_num, 1);
+
 for i=1:length(hdf5_filelist)
     %依次读取
     hdf5_name=['/',hdf5_filelist{i,1},'/',hdf5_filelist{i,2},'/',hdf5_filelist{i,3}];
     patch_id_buff=patch_id(i)+1;%python 与matlab index 转换
-    sub_name=hdf5_filelist{i,3};
     neuron_patch(patch_id_buff).patch_id=patch_id(i);
-    switch sub_name
-        case 'good_a'
-            neuron_patch(patch_id_buff).center=h5read(hdf5file,hdf5_name);%neuron center
-        case 'good_c'
-            neuron_patch(patch_id_buff).trace=h5read(hdf5file,hdf5_name);%neuron trace
-        case 'good_cnn'
-            neuron_patch(patch_id_buff).p_cnn=h5read(hdf5file,hdf5_name);
-        case 'good_corr'
-            neuron_patch(patch_id_buff).p_corr=h5read(hdf5file,hdf5_name);
-        case 'good_patchid'
-            neuron_patch(patch_id_buff).neuron_id=h5read(hdf5file,hdf5_name);%neuron_id in one patch
-        case 'good_s'
-            neuron_patch(patch_id_buff).spike=h5read(hdf5file,hdf5_name);
-        case 'good_snr'
-            neuron_patch(patch_id_buff).p_snr=h5read(hdf5file,hdf5_name);
-    end
+    % 动态字段赋值
+    fld = fieldMap.(hdf5_filelist{i,3});
+    neuron_patch(patch_id_buff).(fld) = h5read(hdf5file,hdf5_name);
 end
 
 %% intergration整合到neuron_align
@@ -48,7 +57,7 @@ neuron_align.neuron.p_cnn=[];
 neuron_align.neuron.patch=[];
 neuron_align.neuron.para=h5read(hdf5file,'/param');
 
-for i=1:size(neuron_patch,2)
+for i=1:size(neuron_patch,1)
     location_buff=neuron_patch(i).center;
     trace_buff=neuron_patch(i).trace;
     spike_buff=neuron_patch(i).spike;
