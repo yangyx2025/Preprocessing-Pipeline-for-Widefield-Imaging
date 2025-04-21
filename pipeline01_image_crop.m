@@ -1,7 +1,7 @@
 %yyx20250413 版本v1.0.0
 %1，适用16bit tif图
 clear; clc; close all;
-addpath('general function')
+FunAddPath()
 disp('=== 图像裁切处理ing ===');
 rootpath='D:\yyx\cam\20230616\m0606_iso\image';
 range_raw=[36	135	1956	1587];%[bx by width height]; 来自imagej
@@ -15,6 +15,11 @@ save(fullfile(savepath{2},'crop_range.mat'),'crop_range');
 FunProcessImg(crop_range,filepath,bg_subtract_factor);
 
 %% function
+function FunAddPath()
+    script_full_path=mfilename('fullpath');
+    [scriptpath, ~, ~] = fileparts(script_full_path);
+    addpath(fullfile(scriptpath,'function'));
+end
 function filepath=FunCreatFilepath(rootpath)
     filepath=cell(4,1);
     dirs = {'raw', 'crop', 'de_bg'};

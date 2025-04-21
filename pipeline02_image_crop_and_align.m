@@ -3,7 +3,7 @@
 %yyx20250408
 
 clc;clear;close all
-addpath('general function')
+FunAddPath()
 disp('=== 图像配准与裁剪处理ing ===');
 %% 设置基本信息
 %设置参考路径
@@ -54,6 +54,11 @@ for i=1:sessions_num
 end
 
 %% function
+function FunAddPath()
+    script_full_path=mfilename('fullpath');
+    [scriptpath, ~, ~] = fileparts(script_full_path);
+    addpath(fullfile(scriptpath,'function'));
+end
 function savepath=FunCreateDirs(base_path)
     % 创建标准化的输出目录
     savepath=cell(4,1);
