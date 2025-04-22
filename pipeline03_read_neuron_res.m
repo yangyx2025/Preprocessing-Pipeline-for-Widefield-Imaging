@@ -7,7 +7,6 @@ clc;
 close all;
 filepath='K:\m0728\20240828_sleep_sti\res';
 %% 
-savename='neuron_align01.mat';
 exportlist_txt=fullfile(filepath,'export_list.txt');
 hdf5file=fullfile(filepath,'export.hdf5');
 %读取文件目录,生成patch的索引
@@ -77,7 +76,7 @@ for i=1:size(neuron_patch,1)
     neuron_align.neuron.patch=[neuron_align.neuron.patch;patch_buff];
 end
 %% 
-save(fullfile(filepath,savename),'neuron_align','-v7.3');
+save(fullfile(filepath,'neuron_align.mat'),'neuron_align','-v7.3');
 %% 
 % h5disp(fullname)
 % h5read(fullname,'/patch1/unselected_good');
