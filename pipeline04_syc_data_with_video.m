@@ -25,7 +25,7 @@ keyboard
 sti=FunGetStiTimepointMatrix(syc_event,daq_sample_rate);
 %% 截取有效数据
 neuron_align=FunGetEffectFrame(neuron_align,syc_event);
-neuron_align.sti_time=sti;
+neuron_align.sti=sti;
 neuron_align.syc_event=syc_event;
 %% 
 % keyboard
@@ -75,7 +75,7 @@ end
 function [savepath,neuron_align]=FunLoadNeuronalign(rootpath)
     %读取neuron_align01.mat
     savepath=fullfile(rootpath,'res');
-    neuron_align_file=fullfile(savepath,'neuron_align.mat');
+    neuron_align_file=fullfile(savepath,'neuron_align01.mat');
     if ~isfile(neuron_align_file)
         error('没找到neuron align 文件')
     end
