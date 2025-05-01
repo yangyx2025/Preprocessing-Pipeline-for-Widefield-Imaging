@@ -25,13 +25,13 @@ disp('检查是否存在问题，无问题可继续运行');
 keyboard
 %% 截取有效数据
 neuron_align=FunGetEffectFrame(neuron_align,syc_event);
-[sti_timepoint_matrix,syc_event]=FunGetEffectSTI(syc_event,neuron_align.conf.daq_samplerate);
+[sti,syc_event]=FunGetEffectSTI(syc_event,neuron_align.conf.daq_samplerate);
 %% 整合结果
-neuron_align.sti_time=sti_timepoint_matrix;
+neuron_align.sti=sti;
 neuron_align.syc_event=syc_event;
 %% 
 keyboard
-save(fullfile(savepath,'neuron_align.mat'),'neuron_align','-v7.3');
+save(fullfile(savepath,'neuron_align02.mat'),'neuron_align','-v7.3');
 
 
 
@@ -48,36 +48,49 @@ function neuron_align=FunSetConf(neuron_align,cam_framerate,voltage_th,daq_sampl
     fprintf('阈值电压设置为 %.3f V\n', neuron_align.conf.voltage_th);
     fprintf('DAQ采样率设置为 %d Hz\n', daq_sample_rate);
 end
-function [sti_timepoint_matrix,syc_event]=FunGetEffectSTI(syc_event,daq_rate)
+function [sti,syc_event]=FunGetEffectSTI(syc_event,daq_rate)
     %获取胡须刺激时间矩阵
     wh_event=syc_event.wh_event;
-    sti_timepoint_matrix=FunGetStiTimepointMatrix(wh_event);
+    [trial_time,trial_type]=FunGetStiTimepointMatrix(wh_event);
     %截取实验事件之间的胡须刺激
-    id_start=find(sti_timepoint_matrix(:,1)>syc_event.exp_event(1),1);%检查实验事件之后的第一个胡须刺激
-    id_end=size(sti_timepoint_matrix,1);%最后的胡须刺激在事件结束之前
-    sti_timepoint_matrix=sti_timepoint_matrix(id_start:id_end,:);
+    id_start=find(trial_time(:,1)>syc_event.exp_event(1),1);%检查实验事件之后的第一个胡须刺激
+    id_end=size(trial_time,1);%最后的胡须刺激在事件结束之前
+    trial_time=trial_time(id_start:id_end,:);
+    trial_type=trial_type(id_start:id_end);
     %截取实验事件中的胡须刺激
-    eff_sti_event_start_id=find(syc_event.wh_event==sti_timepoint_matrix(1,1));
+    eff_sti_event_start_id=find(syc_event.wh_event==trial_time(1,1));
     syc_event.wh_event=syc_event.wh_event(eff_sti_event_start_id:end);
+
     %最后更新sti的相对时间矩阵,单位s
-    sti_timepoint_matrix=(sti_timepoint_matrix-syc_event.exp_event(1))./daq_rate;
+    trial_time=(trial_time-syc_event.exp_event(1))./daq_rate;
+    %
+    trial_type_label = struct( ...
+        'low',    1, ...
+        'medium', 2, ...
+        'high',   3 ...
+        );
+    sti=struct('trial_time',trial_time, ...
+        'trial_type',trial_type, ...
+        'trial_type_label',trial_type_label);
 end
-function sti_timepoint_matrix=FunGetStiTimepointMatrix(wh_event)
+function [trial_time,trial_type]=FunGetStiTimepointMatrix(wh_event)
     trial_num=length(wh_event)/4;
     fprintf('检查到%d个胡须刺激trial\n',trial_num);
     sti_edge_timepoint_matrix=reshape(wh_event,4,trial_num)';
-    sti_timepoint_matrix=nan(trial_num-1,4);
+    trial_time=nan(trial_num-1,4);
     for i=1:size(sti_edge_timepoint_matrix,1)-1%去掉最后一个trial防止不完整
-        sti_timepoint_matrix(i,1)=sti_edge_timepoint_matrix(i,1);
-        sti_timepoint_matrix(i,2)=sti_edge_timepoint_matrix(i,3);
-        sti_timepoint_matrix(i,3)=sti_edge_timepoint_matrix(i,4);
-        sti_timepoint_matrix(i,4)=sti_edge_timepoint_matrix(i+1,1)-1;
+        trial_time(i,1)=sti_edge_timepoint_matrix(i,1);
+        trial_time(i,2)=sti_edge_timepoint_matrix(i,3);
+        trial_time(i,3)=sti_edge_timepoint_matrix(i,4);
+        trial_time(i,4)=sti_edge_timepoint_matrix(i+1,1)-1;
     end
+    trial_type=round(diff(sti_edge_timepoint_matrix(:,1:2),1,2)./100);%将刺激类型作为数值存储
+
 end
 function [savepath,neuron_align]=FunLoadNeuronalign(rootpath)
     %读取neuron_align01.mat
     savepath=fullfile(rootpath,'res');
-    neuron_align_file=fullfile(savepath,'neuron_align.mat');
+    neuron_align_file=fullfile(savepath,'neuron_align01.mat');
     if ~isfile(neuron_align_file)
         error('没找到neuron align 文件')
     end
@@ -98,7 +111,13 @@ end
 function FunAddPath()
     script_full_path=mfilename('fullpath');
     [scriptpath, ~, ~] = fileparts(script_full_path);
-    addpath(fullfile(scriptpath,'function'));
+    function_folder=fullfile(scriptpath,'function');
+    if isfolder(function_folder)
+        addpath(genpath(function_folder));
+        fprintf('Added folder to path: %s\n', function_folder);
+    else
+        error('未发现function文件夹: %s', helperFolder);
+    end
 end
 function syc_data=FunProcessSycData(daq_data)
     %处理同步数据，转化为结构体

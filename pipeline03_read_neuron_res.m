@@ -5,7 +5,7 @@
 clear;
 clc;
 close all;
-filepath='K:\m0728\20240830_sleep_sti\res';
+filepath='K:\m0728\20240828_sleep_sti\res';
 %% 
 exportlist_txt=fullfile(filepath,'export_list.txt');
 hdf5file=fullfile(filepath,'export.hdf5');
@@ -87,7 +87,6 @@ function [res_cell_string,patch_ids] = FunReadHdf5Txt(txt_name)
     res_cell=readcell(txt_name, 'Delimiter', '/', 'TextType','string');
     res_cell_string=string(res_cell);
     res_cell_string(ismissing(res_cell_string))="";
-
     %去掉无关部分
     mask= strcmp(res_cell_string(:,2), 'unselected_good') & ~cellfun(@isempty, res_cell_string(:,3));
     res_cell_string = res_cell_string(mask, :);

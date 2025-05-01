@@ -36,7 +36,13 @@ end
 function FunAddPath()
     script_full_path=mfilename('fullpath');
     [scriptpath, ~, ~] = fileparts(script_full_path);
-    addpath(fullfile(scriptpath,'function'));
+    function_folder=fullfile(scriptpath,'function');
+    if isfolder(function_folder)
+        addpath(genpath(function_folder));
+        fprintf('Added folder to path: %s\n', function_folder);
+    else
+        error('未发现function文件夹: %s', helperFolder);
+    end
 end
 function syc_data=FunProcessSycData(daq_data)
     %处理同步数据，转化为结构体

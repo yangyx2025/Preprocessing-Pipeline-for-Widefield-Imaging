@@ -57,7 +57,13 @@ end
 function FunAddPath()
     script_full_path=mfilename('fullpath');
     [scriptpath, ~, ~] = fileparts(script_full_path);
-    addpath(fullfile(scriptpath,'function'));
+    function_folder=fullfile(scriptpath,'function');
+    if isfolder(function_folder)
+        addpath(genpath(function_folder));
+        fprintf('Added folder to path: %s\n', function_folder);
+    else
+        error('未发现function文件夹: %s', helperFolder);
+    end
 end
 function savepath=FunCreateDirs(base_path)
     % 创建标准化的输出目录

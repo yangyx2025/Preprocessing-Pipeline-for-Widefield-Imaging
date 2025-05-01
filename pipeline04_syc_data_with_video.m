@@ -17,6 +17,7 @@ neuron_align=FunSetConf(neuron_align,cam_framerate,voltage_th,daq_sample_rate);
 %读取
 daq_data=FunLoadDAQData(rootpath);%读取DAQ tdms文件
 syc_data=FunProcessSycData(daq_data);%整合数据到结构体
+%% 检测
 syc_event=FunConv2Event(syc_data,voltage_th);%检测同步文件中高低电平边沿
 FunCheckData(syc_event,neuron_align);%检查异常
 disp('检查是否存在问题，无问题可继续运行');
@@ -96,7 +97,13 @@ end
 function FunAddPath()
     script_full_path=mfilename('fullpath');
     [scriptpath, ~, ~] = fileparts(script_full_path);
-    addpath(fullfile(scriptpath,'function'));
+    function_folder=fullfile(scriptpath,'function');
+    if isfolder(function_folder)
+        addpath(genpath(function_folder));
+        fprintf('Added folder to path: %s\n', function_folder);
+    else
+        error('未发现function文件夹: %s', helperFolder);
+    end
 end
 function syc_data=FunProcessSycData(daq_data)
     %处理同步数据，转化为结构体
