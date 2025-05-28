@@ -53,7 +53,7 @@ function FunProcessImg(crop_range,filepath,bg_subtract_factor)
     catch
         error('裁剪范围超出图像尺寸');
     end
-    [h,w]=size(ref_img);
+    [h,w]=size(ref_crop);
     max_proj = zeros(h, w, 'like', ref_crop);
     min_proj = ones(h, w, 'like', ref_crop) * intmax(class(ref_img));
     sum_proj = zeros(h, w, 'double');
