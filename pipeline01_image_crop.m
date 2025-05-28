@@ -3,14 +3,14 @@
 clear; clc; close all;
 FunAddPath()
 disp('=== 图像裁切处理ing ===');
-rootpath='D:\yyx\cam\20230616\m0606_iso\image';
-range_raw=[36	135	1956	1587];%[bx by width height]; 来自imagej
+rootpath='L:\m0415\20250510\image';
+range_raw=[105	375	1905	1473];%[bx by width height]; 来自imagej
 
 %% 
 crop_range=[range_raw(2),range_raw(2)+range_raw(4),range_raw(1),range_raw(1)+range_raw(3)];
 bg_subtract_factor=0.8;
 filepath=FunCreatFilepath(rootpath);
-save(fullfile(savepath{2},'crop_range.mat'),'crop_range');
+save(fullfile(filepath{2},'crop_range.mat'),'crop_range');
 %% 裁切每张图片
 FunProcessImg(crop_range,filepath,bg_subtract_factor);
 
@@ -48,7 +48,7 @@ function FunProcessImg(crop_range,filepath,bg_subtract_factor)
 
     % 初始化投影矩阵
     try
-        ref_crop=ref_image(crop_range(1):crop_range(2),...
+        ref_crop=ref_img(crop_range(1):crop_range(2),...
             crop_range(3):crop_range(4));
     catch
         error('裁剪范围超出图像尺寸');
