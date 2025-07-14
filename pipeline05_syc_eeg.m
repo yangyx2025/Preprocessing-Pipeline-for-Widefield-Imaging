@@ -1,12 +1,13 @@
 %yyx 20250430读取eeg
 %yyx 20250503 整合加入eegscore
+%yyx 20250713 优化数据结构；将睡眠状态得分转为string
 %eeg需要三个通道
 % clear;clc;
 disp('=== 读取EEGing ===');
 FunAddPath()
 %% 参数设置
 rootpath='K:\m0728\20240828_sleep_sti';
-eeg_voltage_th=1;%检测event的阈值，mv
+eeg_voltage_th=1.3;%检测event的阈值，mv
 th_during=300;%event 间隔阈值，ms(设置为略宽于event脉冲即可)
 eeg_sample_rate=1000;
 %% 读取数据
@@ -25,20 +26,16 @@ eeg_data_syc=FunCutEEGData(eeg_data,event_id);
 eeg_score(:,1)=eeg_score(:,1)-eeg_data.time(event_id(1));%同步状态标签的时间
 sleep_score=FunAlignEEGScore(eeg_score,neuron_align.neuron.cam_time);
 %% 整合数据
-eeg=FunDataIntergration(eeg_data_syc,sleep_score);
+neuron_align=FunDataIntergration(neuron_align,eeg_data_syc,sleep_score);
 %% 保存数据
-neuron_align.eeg=eeg;
+
 save(fullfile(savepath,'neuron_align03.mat'),'neuron_align','-v7.3');
 
 %% 
-function eeg=FunDataIntergration(eeg_data_syc,sleep_score)
-    eeg.data=eeg_data_syc;
-    eeg.sleep_score=sleep_score;
-    eeg.sleep_score_label=struct( ...
-        'Wake', 1, ...
-        'NREM', 2, ...
-        'REM',  3 ...
-        );
+function neuron_align=FunDataIntergration(neuron_align,eeg_data_syc,sleep_score_number)
+    neuron_align.eeg_data=eeg_data_syc;
+    sleep_score_string=categorical(Trans2Column(sleep_score_number),[1 2 3],["wake" "nrem" "rem"]);
+    neuron_align.score.eeg_score=sleep_score_string;
 end
 function eeg_data=FunLoadEEGData(filepath)
     eeg_filepath=fullfile(filepath,'eeg');
